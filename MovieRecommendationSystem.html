@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilmFinder - Find Your Perfect Film</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes float { 0%, 100% { transform: translateY(0px) translateX(0px); } 50% { transform: translateY(-40px) translateX(-10px); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes wiggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .shape1 { width: 300px; height: 300px; top: -100px; left: -100px; animation: float 20s infinite ease-in-out; }
+        .shape2 { width: 200px; height: 200px; top: 50%; right: -100px; animation: float 25s infinite ease-in-out reverse; }
+        .shape3 { width: 250px; height: 250px; bottom: -100px; left: 50%; animation: float 30s infinite ease-in-out; }
+        .shape4 { width: 150px; height: 150px; bottom: 20%; right: 10%; animation: pulse 4s infinite; }
+        .shape5 { width: 100px; height: 100px; top: 30%; left: 10%; animation: pulse 5s infinite; }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px 35px;
+            max-width: 620px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            z-index: 10;
+            animation: slideInUp 0.8s ease-out;
+            margin: auto;
+        }
+
+        .container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideDown 0.8s ease-out;
+            letter-spacing: 0px;
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .emoji {
+            animation: spin 3s linear infinite;
+            display: inline;
+            margin-right: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.95em;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            margin: 8px 0;
+        }
+
+        .tagline {
+            color: #667eea;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 5px;
+            letter-spacing: 0.2px;
+        }
+
+        .main-question {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .main-question h2 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 18px;
+            flex-direction: column;
+        }
+
+        .choice-btn {
+            padding: 16px 28px;
+            font-size: 1.05em;
+            border: 3px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.8px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .choice-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .choice-btn .emoji {
+            margin-right: 10px;
+            font-size: 1.2em;
+            animation: bounce 2s infinite;
+        }
+
+        .genre-section, .recommendations {
+            display: none;
+            animation: slideIn 0.6s ease;
+        }
+
+        .genre-section.show, .recommendations.show {
+            display: block;
+        }
+
+        .genre-title {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 22px;
+            text-align: center;
+            font-weight: 600;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .genre-title .emoji {
+            margin-right: 10px;
+            animation: wiggle 1s infinite;
+        }
+
+        .genre-grid, .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 13px;
+            margin-bottom: 22px;
+        }
+
+        .genre-option, .mood-option {
+            padding: 16px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 3px solid transparent;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-weight: bold;
+            color: #333;
+            font-size: 0.92em;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .genre-option .emoji, .mood-option .emoji {
+            font-size: 2.1em;
+            margin-bottom: 7px;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .genre-option:hover, .mood-option:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .genre-option:hover .emoji, .mood-option:hover .emoji {
+            transform: scale(1.2) rotate(-10deg);
+        }
+
+        .genre-option.selected, .mood-option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            animation: pulse 0.6s ease;
+        }
+
+        .rec-title {
+            font-size: 1.3em;
+            margin-bottom: 22px;
+            text-align: center;
+            font-weight: 600;
+            animation: slideDown 0.8s ease-out;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .movie-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .movie-card:nth-child(1) { animation-delay: 0.1s; }
+        .movie-card:nth-child(2) { animation-delay: 0.2s; }
+        .movie-card:nth-child(3) { animation-delay: 0.3s; }
+        .movie-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .movie-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .movie-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 9px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .movie-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            opacity: 0.95;
+            gap: 8px;
+        }
+
+        .movie-rating {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 10px;
+            border-radius: 18px;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            padding: 9px 18px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 18px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            letter-spacing: 0.8px;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+                max-height: 85vh;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 0.9em;
+            }
+
+            .tagline {
+                font-size: 0.85em;
+            }
+
+            .genre-grid, .mood-grid {
+                grid-template-columns: 1fr;
+                gap: 11px;
+            }
+
+            .choice-btn {
+                padding: 13px 18px;
+                font-size: 0.95em;
+            }
+
+            .movie-card {
+                padding: 14px;
+            }
+
+            .shape {
+                opacity: 0.05;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 16px 14px;
+                max-height: 90vh;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 1.7em;
+                margin-bottom: 5px;
+            }
+
+            .subtitle {
+                font-size: 0.85em;
+                margin: 5px 0;
+            }
+
+            .tagline {
+                font-size: 0.8em;
+            }
+
+            .main-question h2 {
+                font-size: 1.1em;
+            }
+
+            .choice-btn {
+                padding: 11px 14px;
+                font-size: 0.9em;
+            }
+
+            .genre-option .emoji {
+                font-size: 1.9em;
+            }
+
+            .movie-card {
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+
+            .reset-btn {
+                padding: 11px;
+                font-size: 0.95em;
+                margin-top: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shapes">
+        <div class="shape shape1"></div>
+        <div class="shape shape2"></div>
+        <div class="shape shape3"></div>
+        <div class="shape shape4"></div>
+        <div class="shape shape5"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1><span class="emoji">🎬</span>FilmFinder</h1>
+            <p class="subtitle">✨ Find Your Perfect Film ✨</p>
+            <p class="tagline">Smart Movie Recommendations in 3 Simple Steps</p>
+        </header>
+
+        <div id="step1" class="main-question">
+            <h2>How do you want to find a movie?</h2>
+            <div class="button-group">
+                <button class="choice-btn" onclick="chooseGenre()"><span class="emoji">🎭</span> By Genre</button>
+                <button class="choice-btn" onclick="chooseMood()"><span class="emoji">😊</span> By Mood</button>
+            </div>
+        </div>
+
+        <div id="step2-genre" class="genre-section">
+            <button class="back-btn" onclick="goBack()">← Back</button>
+            <h2 class="genre-title"><span class="emoji">🎭</span> Select a Genre</h2>
+            <div class="genre-grid">
+                <div class="genre-option" onclick="selectGenre(this, 'action')"><span class="emoji">💥</span><br>Action</div>
+                <div class="genre-option" onclick="selectGenre(this, 'comedy')"><span class="emoji">😂</span><br>Comedy</div>
+                <div class="genre-option" onclick="selectGenre(this, 'drama')"><span class="emoji">😢</span><br>Drama</div>
+                <div class="genre-option" onclick="selectGenre(this, 'scifi')"><span class="emoji">🚀</span><br>Sci-Fi</div>
+                <div class="genre-option" onclick="selectGenre(this, 'horror')"><span class="emoji">👻</span><br>Horror</div>
+                <div class="genre-option" onclick="selectGenre(this, 'romance')"><span class="emoji">💕</span><br>Romance</div>
+            </div>
+        </div>
+
+        <div id="step2-mood" class="genre-section">
+            <button class="back-btn" onclick="goBack()">← Back</button>
+            <h2 class="genre-title"><span class="emoji">😊</span> What's your mood?</h2>
+            <div class="mood-grid">
+                <div class="mood-option" onclick="selectMood(this, 'excited')"><span class="emoji">🎉</span><strong>Excited</strong></div>
+                <div class="mood-option" onclick="selectMood(this, 'relaxed')"><span class="emoji">😌</span><strong>Relaxed</strong></div>
+                <div class="mood-option" onclick="selectMood(this, 'sad')"><span class="emoji">😢</span><strong>Emotional</strong></div>
+                <div class="mood-option" onclick="selectMood(this, 'laugh')"><span class="emoji">😂</span><strong>Laugh</strong></div>
+                <div class="mood-option" onclick="selectMood(this, 'scared')"><span class="emoji">😱</span><strong>Thrilled</strong></div>
+                <div class="mood-option" onclick="selectMood(this, 'inspired')"><span class="emoji">✨</span><strong>Inspired</strong></div>
+            </div>
+        </div>
+
+        <div id="step3" class="recommendations">
+            <button class="back-btn" onclick="goBack()">← Back</button>
+            <h2 class="rec-title" id="recTitle"></h2>
+            <div id="movieContainer"></div>
+            <button class="reset-btn" onclick="reset()">🔄 Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        const movies = {
+            action: [
+                { title: "The Dark Knight", rating: "9.0/10", year: "2008" },
+                { title: "Mad Max: Fury Road", rating: "8.1/10", year: "2015" },
+                { title: "John Wick", rating: "7.4/10", year: "2014" },
+                { title: "The Avengers", rating: "8.0/10", year: "2012" }
+            ],
+            comedy: [
+                { title: "The Grand Budapest Hotel", rating: "8.1/10", year: "2014" },
+                { title: "Superbad", rating: "7.6/10", year: "2007" },
+                { title: "Juno", rating: "7.1/10", year: "2007" },
+                { title: "The Hangover", rating: "7.7/10", year: "2009" }
+            ],
+            drama: [
+                { title: "The Shawshank Redemption", rating: "9.3/10", year: "1994" },
+                { title: "Forrest Gump", rating: "8.8/10", year: "1994" },
+                { title: "Life is Beautiful", rating: "8.6/10", year: "1997" },
+                { title: "The Pursuit of Happiness", rating: "8.2/10", year: "2006" }
+            ],
+            scifi: [
+                { title: "Inception", rating: "8.8/10", year: "2010" },
+                { title: "Interstellar", rating: "8.6/10", year: "2014" },
+                { title: "The Matrix", rating: "8.7/10", year: "1999" },
+                { title: "Blade Runner 2049", rating: "8.0/10", year: "2017" }
+            ],
+            horror: [
+                { title: "The Shining", rating: "8.4/10", year: "1980" },
+                { title: "Get Out", rating: "7.7/10", year: "2017" },
+                { title: "A Quiet Place", rating: "7.5/10", year: "2018" },
+                { title: "The Conjuring", rating: "7.5/10", year: "2013" }
+            ],
+            romance: [
+                { title: "Titanic", rating: "7.2/10", year: "1997" },
+                { title: "La La Land", rating: "8.0/10", year: "2016" },
+                { title: "The Notebook", rating: "7.8/10", year: "2004" },
+                { title: "Pride and Prejudice", rating: "7.8/10", year: "2005" }
+            ],
+            excited: [
+                { title: "The Dark Knight", rating: "9.0/10", year: "2008" },
+                { title: "Mad Max: Fury Road", rating: "8.1/10", year: "2015" },
+                { title: "The Avengers", rating: "8.0/10", year: "2012" },
+                { title: "John Wick", rating: "7.4/10", year: "2014" }
+            ],
+            relaxed: [
+                { title: "Forrest Gump", rating: "8.8/10", year: "1994" },
+                { title: "The Grand Budapest Hotel", rating: "8.1/10", year: "2014" },
+                { title: "Juno", rating: "7.1/10", year: "2007" },
+                { title: "Life is Beautiful", rating: "8.6/10", year: "1997" }
+            ],
+            sad: [
+                { title: "The Shawshank Redemption", rating: "9.3/10", year: "1994" },
+                { title: "Life is Beautiful", rating: "8.6/10", year: "1997" },
+                { title: "The Pursuit of Happiness", rating: "8.2/10", year: "2006" },
+                { title: "The Notebook", rating: "7.8/10", year: "2004" }
+            ],
+            laugh: [
+                { title: "Superbad", rating: "7.6/10", year: "2007" },
+                { title: "The Hangover", rating: "7.7/10", year: "2009" },
+                { title: "The Grand Budapest Hotel", rating: "8.1/10", year: "2014" },
+                { title: "Juno", rating: "7.1/10", year: "2007" }
+            ],
+            scared: [
+                { title: "The Shining", rating: "8.4/10", year: "1980" },
+                { title: "Get Out", rating: "7.7/10", year: "2017" },
+                { title: "A Quiet Place", rating: "7.5/10", year: "2018" },
+                { title: "The Conjuring", rating: "7.5/10", year: "2013" }
+            ],
+            inspired: [
+                { title: "Inception", rating: "8.8/10", year: "2010" },
+                { title: "Interstellar", rating: "8.6/10", year: "2014" },
+                { title: "La La Land", rating: "8.0/10", year: "2016" },
+                { title: "The Pursuit of Happiness", rating: "8.2/10", year: "2006" }
+            ]
+        };
+
+        let currentSelection = null;
+        let selectionType = null;
+
+        function chooseGenre() {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2-genre').classList.add('show');
+            document.getElementById('step2-mood').classList.remove('show');
+            selectionType = 'genre';
+        }
+
+        function chooseMood() {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2-mood').classList.add('show');
+            document.getElementById('step2-genre').classList.remove('show');
+            selectionType = 'mood';
+        }
+
+        function selectGenre(element, genre) {
+            document.querySelectorAll('.genre-option').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+            currentSelection = genre;
+            setTimeout(() => showRecommendations(genre), 300);
+        }
+
+        function selectMood(element, mood) {
+            document.querySelectorAll('.mood-option').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+            currentSelection = mood;
+            setTimeout(() => showRecommendations(mood), 300);
+        }
+
+        function showRecommendations(selection) {
+            const movieList = movies[selection];
+            const title = selectionType === 'genre' ? `Top ${selection.charAt(0).toUpperCase() + selection.slice(1)} Movies` : `Movies for Your Mood`;
+            
+            document.getElementById('step2-genre').classList.remove('show');
+            document.getElementById('step2-mood').classList.remove('show');
+            document.getElementById('step3').classList.add('show');
+            document.getElementById('recTitle').textContent = title;
+
+            let html = '';
+            movieList.forEach(movie => {
+                html += `<div class="movie-card"><div class="movie-title">🎬 ${movie.title}</div><div class="movie-info"><span class="movie-rating">⭐ ${movie.rating}</span><span>${movie.year}</span></div></div>`;
+            });
+
+            document.getElementById('movieContainer').innerHTML = html;
+            document.querySelector('.container').scrollTop = 0;
+        }
+
+        function goBack() {
+            document.getElementById('step1').style.display = 'block';
+            document.getElementById('step2-genre').classList.remove('show');
+            document.getElementById('step2-mood').classList.remove('show');
+            document.getElementById('step3').classList.remove('show');
+            document.querySelectorAll('.genre-option, .mood-option').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector('.container').scrollTop = 0;
+        }
+
+        function reset() {
+            goBack();
+        }
+    </script>
+</body>
+</html>
